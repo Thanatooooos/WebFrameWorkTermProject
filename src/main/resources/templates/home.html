@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>✨ 优购商城 · 精选好物</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4ade80;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* 顶部导航 */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(90deg, var(--primary), #7209b7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            margin-left: 24px;
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 600;
+            position: relative;
+            transition: color 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -4px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .user-panel {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .cart-icon {
+            position: relative;
+            font-size: 1.4rem;
+            color: var(--primary);
+            cursor: pointer;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -8px;
+            right: -8px;
+            background: var(--secondary);
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+
+        /* 主容器 */
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        /* 横幅 */
+        .hero-banner {
+            background: linear-gradient(120deg, #4361ee 0%, #3a0ca3 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 40px;
+            margin-bottom: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(67, 97, 238, 0.3);
+        }
+
+        .hero-banner h2 {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+        }
+
+        .hero-banner p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        /* 商品区标题 */
+        .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 32px 0 20px;
+        }
+
+        .section-title h2 {
+            font-size: 1.6rem;
+            color: var(--dark);
+        }
+
+        .view-all {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        /* 商品网格 */
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 28px;
+        }
+
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+            transition: all 0.35s cubic-bezier(0.25, 0.8, 0.25, 1);
+            position: relative;
+        }
+
+        .product-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.12);
+        }
+
+        .product-tag {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: var(--secondary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            z-index: 2;
+        }
+
+        .product-image {
+            height: 180px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f4ff;
+            font-size: 3rem;
+            color: var(--primary);
+        }
+
+        .product-info {
+            padding: 20px;
+        }
+
+        .product-info h3 {
+            font-size: 1.15rem;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+
+        .rating {
+            color: #fbbf24;
+            margin: 6px 0;
+            font-size: 0.95rem;
+        }
+
+        .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 12px 0;
+        }
+
+        .price {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stock {
+            font-size: 0.85rem;
+            color: var(--success);
+        }
+
+        .stock.out {
+            color: #ef4444;
+        }
+
+        .add-to-cart-btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .add-to-cart-btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: width 0.6s, height 0.6s, top 0.6s, left 0.6s;
+        }
+
+        .add-to-cart-btn:active::before {
+            width: 300px;
+            height: 300px;
+            top: -100px;
+            left: -100px;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-disabled {
+            background: #e9ecef;
+            color: #adb5bd;
+            cursor: not-allowed;
+        }
+
+        /* 提示框 */
+        .alert {
+            padding: 14px 20px;
+            border-radius: 12px;
+            margin: 24px 0;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .alert-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .alert-error {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .navbar {
+                padding: 14px 20px;
+            }
+            .nav-links {
+                display: none; /* 移动端可折叠，这里简化 */
+            }
+            .hero-banner {
+                padding: 24px 16px;
+            }
+            .hero-banner h2 {
+                font-size: 1.6rem;
+            }
+            .products-grid {
+                grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+                gap: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 导航栏 -->
+<div class="navbar">
+    <div class="logo">
+        <i class="fas fa-shopping-bag"></i>
+        优购商城
+    </div>
+    <div class="nav-links">
+        <a href="/home">首页</a>
+        <a href="#">分类</a>
+        <a href="#">新品</a>
+        <a href="#">促销</a>
+    </div>
+    <div class="user-panel">
+        <div th:if="${isLoggedIn}">
+            👋 <strong th:text="${currentUser.username}"></strong>
+            <a href="/logout" style="color: var(--gray); margin-left: 12px;">退出</a>
+        </div>
+        <div th:unless="${isLoggedIn}">
+            <a href="/login?redirect=/home" class="btn-primary" style="padding: 8px 16px; border-radius: 8px; color: white; text-decoration: none;">登录</a>
+        </div>
+        <!-- ✅ 购物车图标：点击跳转到 /cart -->
+        <a href="/cart" class="cart-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-badge" th:text="${cartCount} ?: 0">0</span>
+        </a>
+    </div>
+</div>
+
+<div class="container">
+    <!-- 成功/错误提示 -->
+    <div th:if="${success}" class="alert alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert alert-error" th:text="${error}"></div>
+
+    <!-- 横幅 -->
+    <div class="hero-banner">
+        <h2>🎉 限时特惠 · 全场满19999减3000</h2>
+        <p>精选好物，品质保障，今日下单享优先发货</p>
+    </div>
+
+    <!-- 商品区 -->
+    <div class="section-title">
+        <h2>🔥 热销推荐</h2>
+        <a href="#" class="view-all">查看全部</a>
+    </div>
+
+    <div class="products-grid">
+        <div class="product-card" th:each="product : ${products}">
+            <!-- 标签：假设前3个是热销 -->
+            <div class="product-tag" th:if="${productStat.index &lt; 3}">热销</div>
+
+            <div class="product-image">
+                <i class="fas fa-gift"></i>
+            </div>
+
+            <div class="product-info">
+                <h3 th:text="${product.name}">无线蓝牙耳机</h3>
+                <div class="rating">
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star"></i>
+                    <i class="fas fa-star-half-alt"></i>
+                    <span style="color: var(--gray); margin-left: 6px;">(128)</span>
+                </div>
+                <p th:if="${product.description}" th:text="${product.description}" style="color: var(--gray); font-size: 0.9rem; margin: 8px 0;"></p>
+
+                <div class="price-row">
+                    <div class="price">¥<span th:text="${product.price}">299</span></div>
+<!--                    <div class="stock" th:classappend="${product.stock &gt; 0 ? '' : 'out'}"-->
+<!--                         th:text="${product.stock &gt; 0 ? '有货' : '缺货'}">有货</div>-->
+                </div>
+
+                <!-- 加入购物车按钮 -->
+                <div th:if="${isLoggedIn}">
+                    <form th:action="@{/cart/add}" method="post">
+                        <input type="hidden" name="productId" th:value="${product.id}" />
+                        <button type="submit" class="add-to-cart-btn btn-primary">
+                            <i class="fas fa-cart-plus"></i> 加入购物车
+                        </button>
+                    </form>
+                </div>
+                <div th:unless="${isLoggedIn}">
+                    <button class="add-to-cart-btn btn-disabled"
+                            onclick="alert('请先登录才能加入购物车！')">
+                        <i class="fas fa-lock"></i> 请登录
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // 可选：加入购物车成功后轻微震动反馈（增强体验）
+    document.querySelectorAll('form').forEach(form => {
+        form.addEventListener('submit', () => {
+            const btn = form.querySelector('button');
+            btn.innerHTML = '<i class="fas fa-check"></i> 已添加！';
+            btn.style.background = '#10b981';
+            setTimeout(() => {
+                btn.innerHTML = '<i class="fas fa-cart-plus"></i> 加入购物车';
+                btn.style.background = '';
+            }, 1500);
+        });
+    });
+</script>
+
+</body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="zh">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>我的购物车 · 优购商城</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #4361ee;
+            --primary-dark: #3a56d4;
+            --secondary: #ff6b6b;
+            --light: #f8f9fa;
+            --dark: #212529;
+            --gray: #6c757d;
+            --success: #4ade80;
+            --border: #e0e0e0;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', system-ui, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4edf9 100%);
+            color: var(--dark);
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* 顶部导航（简化版，与 home 一致） */
+        .navbar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+            padding: 16px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .logo {
+            font-size: 1.8rem;
+            font-weight: 800;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .back-home {
+            text-decoration: none;
+            color: var(--gray);
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .back-home:hover {
+            color: var(--primary);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .page-title {
+            text-align: center;
+            margin: 32px 0 24px;
+            font-size: 2rem;
+            color: var(--dark);
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--gray);
+            font-style: italic;
+        }
+
+        .empty-cart i {
+            font-size: 4rem;
+            margin-bottom: 20px;
+            color: #e0e0e0;
+        }
+
+        /* 购物车列表 */
+        .cart-items {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .cart-item {
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            gap: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            align-items: center;
+            transition: transform 0.2s;
+        }
+
+        .cart-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.08);
+        }
+
+        .product-image {
+            width: 100px;
+            height: 100px;
+            background: #f0f4ff;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .product-info {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .product-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .product-desc {
+            font-size: 0.95rem;
+            color: var(--gray);
+            line-height: 1.4;
+        }
+
+        .product-meta {
+            display: flex;
+            gap: 20px;
+            margin-top: 8px;
+            font-size: 1rem;
+        }
+
+        .price-tag {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .quantity {
+            color: var(--gray);
+        }
+
+        .added-time {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+        .delete-btn {
+            background: #fee2e2;
+            color: #ef4444;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #fecaca;
+            transform: scale(1.1);
+        }
+
+        /* 总计栏 */
+        .cart-summary {
+            background: white;
+            padding: 20px;
+            border-radius: 16px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .total-text {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .total-price {
+            font-size: 1.5rem;
+            color: var(--primary);
+            font-weight: 800;
+        }
+
+        .actions {
+            display: flex;
+            gap: 16px;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border-radius: 10px;
+            font-weight: 600;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-outline {
+            border: 2px solid var(--primary);
+            color: var(--primary);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline:hover {
+            background: #f0f4ff;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .cart-item {
+                flex-direction: column;
+                text-align: center;
+            }
+            .product-meta {
+                justify-content: center;
+            }
+            .cart-summary {
+                flex-direction: column;
+                gap: 16px;
+                text-align: center;
+            }
+            .actions {
+                width: 100%;
+                justify-content: center;
+            }
+            .btn {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<!-- 简化导航 -->
+<div class="navbar">
+    <div class="logo">
+        <i class="fas fa-shopping-bag"></i>
+        优购商城
+    </div>
+    <a href="/home" class="back-home">
+        <i class="fas fa-arrow-left"></i> 返回首页
+    </a>
+</div>
+
+<div class="container">
+    <h1 class="page-title">🛒 我的购物车</h1>
+
+    <!-- 空购物车 -->
+    <div th:if="${cart == null || #lists.isEmpty(cart.items)}">
+        <div class="empty-cart">
+            <i class="fas fa-shopping-cart"></i>
+            <h3>您的购物车是空的</h3>
+            <p style="margin-top: 12px;">快去挑选心仪的商品吧！</p>
+            <a href="/home" class="btn btn-outline" style="margin-top: 20px; display: inline-block;">浏览商品</a>
+        </div>
+    </div>
+
+    <!-- 有商品 -->
+    <div th:unless="${cart == null || #lists.isEmpty(cart.items)}">
+        <div class="cart-items">
+            <div class="cart-item" th:each="item : ${cart.items}">
+                <div class="product-image">
+                    <i class="fas fa-gift"></i>
+                </div>
+                <div class="product-info">
+                    <div class="product-name" th:text="${item.product.name}">无线蓝牙耳机</div>
+                    <div class="product-desc" th:text="${item.product.description} ?: '暂无描述'">高保真音质，降噪...</div>
+                    <div class="product-meta">
+                        <span class="price-tag">¥<span th:text="${item.product.price}">299</span></span>
+                        <span class="quantity">× <span th:text="${item.quantity}">1</span></span>
+                        <span class="added-time" th:text="${#temporals.format(item.addedAt, 'MM-dd HH:mm')}">12-24 14:00</span>
+                    </div>
+                </div>
+                <form th:action="@{/cart/remove}" method="post" style="display:inline;">
+                    <input type="hidden" name="cartItemId" th:value="${item.id}" />
+                    <button type="submit" class="delete-btn" title="删除"
+                            onclick="return confirm('确定要删除这个商品吗？')">
+                        <i class="fas fa-trash"></i>
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <!-- 总计 -->
+        <div class="cart-summary">
+            <div>
+                <div class="total-text">
+                    共 <span th:text="${cartCount}">0</span> 件商品，
+                    总计：
+                </div>
+            </div>
+            <div>
+                <span th:text="${#numbers.formatDecimal(totalAmount, 1, 2)}">0.00</span>
+            </div>
+            <div class="actions">
+                <a href="/home" class="btn btn-outline">继续购物</a>
+                <!-- 后续可扩展结算功能 -->
+                <!-- <a href="#" class="btn btn-primary">去结算</a> -->
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+</html>

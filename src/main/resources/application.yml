@@ -1,0 +1,37 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: ecommerce-demo
+
+  # 注意：datasource 和 jpa 是 spring 的直接子项，不是 application 的子项！
+  datasource:
+    url: jdbc:mysql://mysql:3306/ecommerce_db?useUnicode=true&characterEncoding=UTF-8&connectionCollation=utf8mb4_unicode_ci&characterSetResults=UTF-8&useSSL=false&serverTimezone=UTC
+    username: root
+    password: root123
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+#        dialect: org.hibernate.dialect.MySQL8Dialect
+        connection.charSet: UTF-8
+        connection.characterEncoding: UTF-8
+        connection.useUnicode: true
+
+  # thymeleaf 也是 spring 的直接子项
+  thymeleaf:
+    cache: false
+
+  # 禁用 Security 自动配置（必须在 spring 下正确缩进）
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+
+logging:
+  level:
+    org.hibernate.SQL: DEBUG
